@@ -1,0 +1,19 @@
+name: build typescript
+
+on:
+  push:
+    branches:
+      - '**'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v1
+        with:
+          node-version: 20.9.0
+      - run: yarn install
+      - run: yarn lint
+      - run: yarn build
+      - run: yarn test:type
