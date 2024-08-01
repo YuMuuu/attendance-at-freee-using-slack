@@ -24,9 +24,9 @@
     "typescript": "^5.5.4"
   },
   "scripts": {
-    "build": "tsc --build",
+    "build": "NODE_ENV=production&tsc --build",
     "start": "node dist",
-    "dev": "ts-node-dev --files src/app",
+    "dev": "ts-node-dev --env-file=.env --files src/app",
     "test:type": "tsc --noEmit",
     "lint": "prettier --check .",
     "fmt": "prettier --write .",

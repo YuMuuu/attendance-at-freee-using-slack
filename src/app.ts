@@ -1,7 +1,7 @@
 import { App } from '@slack/bolt'
-import { get, refresh } from './utill/employeeIdMapper'
+import * as employeeIdMapper from './utill/employeeIdMapper'
 import { getEmailAdressFromSlack } from './utill/slackClient'
-import { registerClockIn } from './utill/freeeHRApiClient'
+import * as freeeApiClient from './utill/freeeHRApiClient'
 
 const app = new App({
   token: process.env.SLACK_BOT_TOKEN,
@@ -36,17 +36,16 @@ app.message(':freee_buturi_out:', async ({ message, say }) => {
 app.message(':freee_remote_in:', async ({ message, say }) => {
   if (message.channel === LISTEN_CHANNNEL_ID) {
     if (message.subtype === undefined || message.subtype === 'bot_message') {
-      const user = message.user!
-      const email = await getEmailAdressFromSlack(app, user)
-      const employeeId = get(email)
-      const resp = await registerClockIn(employeeId!, 'clock_in')
-        .then((i) => {
-          say(`リモートワーク出勤を打刻しました`)
-        })
-        .catch((error) => {
-          say(error as string)
-        })
-      await resp
+      try {
+        const user = message.user!
+        const email = await getEmailAdressFromSlack(app, user)
+        const employeeId = employeeIdMapper.get(email)
+        await freeeApiClient.registerClockIn(employeeId!, 'clock_in')
+        await say(`リモートワーク出勤を打刻しました`)
+      } catch (error) {
+        console.log(JSON.stringify(error))
+        await say(JSON.stringify(error)) //どうせ復帰できないので適当にエラーを出力する
+      }
     }
   }
 })
@@ -54,17 +53,15 @@ app.message(':freee_remote_in:', async ({ message, say }) => {
 app.message(':freee_remote_out:', async ({ message, say }) => {
   if (message.channel === LISTEN_CHANNNEL_ID) {
     if (message.subtype === undefined || message.subtype === 'bot_message') {
-      const user = message.user!
-      const email = await getEmailAdressFromSlack(app, user)
-      const employeeId = get(email)
-      const resp = await registerClockIn(employeeId!, 'clock_out')
-        .then((i) => {
-          say(`リモートワーク退勤を打刻しました`)
-        })
-        .catch((error) => {
-          say(error as string)
-        })
-      await resp
+      try {
+        const user = message.user!
+        const email = await getEmailAdressFromSlack(app, user)
+        const employeeId = employeeIdMapper.get(email)
+        await freeeApiClient.registerClockIn(employeeId!, 'clock_out')
+      } catch (error) {
+        console.log(JSON.stringify(error))
+        await say(JSON.stringify(error)) //どうせ復帰できないので適当にエラーを出力する
+      }
     }
   }
 })
@@ -72,24 +69,27 @@ app.message(':freee_remote_out:', async ({ message, say }) => {
 app.message(':freee_refresh_employees:', async ({ message, say }) => {
   if (message.channel === LISTEN_CHANNNEL_ID) {
     if (message.subtype === undefined || message.subtype === 'bot_message') {
-      await fetchEmployeesRecursively(0)
-      await say('従業員情報をリロードしました')
+      try {
+        await employeeIdMapper.refresh
+        await say('従業員情報をリロードしました')
+      } catch (error) {
+        console.log(JSON.stringify(error))
+        await say(JSON.stringify(error)) //どうせ復帰できないので適当にエラーを出力する
+      }
     }
   }
 })
 
-app.message('freee_bot_ping', async ({ message, say }) => {
-  if (message.subtype === undefined || message.subtype === 'bot_message') {
-    await say(`pong!, <@${message.user}>`)
+app.message(':freee_bot_ping:', async ({ message, say }) => {
+  if (message.channel === LISTEN_CHANNNEL_ID) {
+    if (message.subtype === undefined || message.subtype === 'bot_message') {
+      await say(`pong!, <@${message.user}>`)
+    }
   }
 })
 ;(async () => {
-  // Start your app
-  await refresh()
+  await employeeIdMapper.refresh() //起動時に全従業委員の情報を取得する
   await app.start(process.env.PORT || 3000)
 
   console.log('⚡️ Bolt app is running!')
 })()
-function fetchEmployeesRecursively(arg0: number) {
-  throw new Error('Function not implemented.')
-}

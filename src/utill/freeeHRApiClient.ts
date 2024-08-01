@@ -1,6 +1,6 @@
 import createClient from 'openapi-fetch'
 import type { paths } from '../openapi/api-schema'
-import { ClockInStatus } from './ClockInStatus'
+import { ClockInStatus } from './type'
 import { getAccessToken } from './freerAuthorize'
 
 interface EmailAndEmployeeId {
