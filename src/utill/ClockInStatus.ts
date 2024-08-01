@@ -1,10 +1,4 @@
 // 打刻可能種別
-type ClockInStatus =
-  | 'buturi_in'
-  | 'buturi_out'
-  | 'remote_in'
-  | 'remote_out'
-  | 'kyukei_in'
-  | 'kyukei_out'
+type ClockInStatus = 'clock_in' | 'break_begin' | 'break_end' | 'clock_out'
 
 export type { ClockInStatus }
