@@ -43,6 +43,9 @@ async function registerClockIn(
 }
 
 async function getAllEmployees(offset: number): Promise<EmailAndEmployeeId[]> {
+  const date = new Date()
+  const year = date.getFullYear()
+  const month = date.getMonth() + 1
   const accessToken = await getAccessToken()
   const req = client.GET('/api/v1/employees', {
     Headers: {
@@ -53,8 +56,8 @@ async function getAllEmployees(offset: number): Promise<EmailAndEmployeeId[]> {
         company_id: companyId,
         limit: 100,
         offset: offset,
-        year: 2024, //todo:現在日付を渡す
-        month: 8, //todo:現在日付を渡す
+        year: year,
+        month: month,
       },
     },
   })
