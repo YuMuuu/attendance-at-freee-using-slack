@@ -11,11 +11,10 @@ app.use(async ({ next }) => {
   await next()
 })
 
-
 app.message(':freee_buturi_in:', async ({ message, say }) => {
   if (message.channel === LISTEN_CHANNNEL_ID) {
     if (message.subtype === undefined || message.subtype === 'bot_message') {
-        const user = message.user!
+      const user = message.user!
       await say(`物理出勤を打刻しました`)
     }
   }
@@ -73,11 +72,10 @@ app.message('freee_bot_ping', async ({ message, say }) => {
   console.log('⚡️ Bolt app is running!')
 })()
 
-
 //--------
 
 async function getEmailAdressFromSlack(user: string): Promise<string> {
-    const resp = await app.client.users.info({user: user})
-    const email = resp.user?.profile?.email!
-    return email
+  const resp = await app.client.users.info({ user: user })
+  const email = resp.user?.profile?.email!
+  return email
 }
